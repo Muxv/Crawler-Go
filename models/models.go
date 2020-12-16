@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-type db *gorm.DB
+var db *gorm.DB
 
 func init() {
 	sec, err := setting.Cfg.GetSection("database")
@@ -29,7 +29,7 @@ func init() {
 		host,
 		dbName)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Println("Fail to open Database:", err)
 	}

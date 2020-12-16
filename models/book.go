@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type BookInfo struct {
+type TopBook struct {
 	Topk      int     `gorm:"primaryKey" json:"top"`
 	ChName    string  `json:"ch_name"`
 	EnName    string  `json:"en_name"`
@@ -14,15 +14,11 @@ type BookInfo struct {
 	Rank      float64 `json:"rank"`
 	RankNum   int     `json:"rank_num"`
 	Comment   string  `json:"comment"`
-}
-
-type Top struct {
-	BookInfo
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func (b BookInfo) String() string {
+func (b TopBook) String() string {
 	var builder strings.Builder
 	builder.WriteString("排名: " + strconv.Itoa(b.Topk) + "\n")
 	builder.WriteString("书名: " + b.ChName + "\n")
@@ -35,4 +31,10 @@ func (b BookInfo) String() string {
 	builder.WriteString("评语: " + b.Comment + "\n")
 
 	return builder.String()
+}
+
+func (b TopBook) Insert() {
+	b.CreatedAt = time.Now()
+	b.UpdatedAt = time.Now()
+	db.Create(&b)
 }

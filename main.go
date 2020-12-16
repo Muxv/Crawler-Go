@@ -3,7 +3,6 @@ package main
 import (
 	m "Crawler-go/models"
 	"bufio"
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"io"
 	"log"
@@ -16,7 +15,7 @@ import (
 
 var (
 	url       = "https://book.douban.com/top250"
-	BookLists = make([]m.BookInfo, 250, 250)
+	BookLists = make([]m.TopBook, 250, 250)
 	numbers   = regexp.MustCompile("[0-9]+")
 )
 
@@ -43,7 +42,11 @@ func main() {
 		<-finish
 	}
 
-	fmt.Println(BookLists[45:55])
+	log.Println("Now start to save books in mysql")
+	for i := 0; i < PageSize*pageCount; i++ {
+		BookLists[i].Insert()
+	}
+	log.Println("Insert Over")
 }
 
 func CrawOnePage(pageNum int) *http.Response {
@@ -75,7 +78,7 @@ func ParseBookInfo(r io.Reader, page int) {
 	doc.Find(".article .indent table").Each(func(i int, selection *goquery.Selection) {
 		cName := selection.Find("td .pl2 a").Text()
 		cName = strings.Join(strings.Fields(cName), "")
-		eName := selection.Find("td .pl2 span").Text()
+		eName := selection.Find("td .pl2>span").Text()
 		bInfo := selection.Find("td p.pl").Text()
 		rStr := selection.Find("td span.rating_nums").Text()
 		ra, _ := strconv.ParseFloat(rStr, 64)
@@ -84,7 +87,7 @@ func ParseBookInfo(r io.Reader, page int) {
 		rn, _ := strconv.Atoi(rStr)
 		com := selection.Find("td p.quote span").Text()
 
-		book := m.BookInfo{
+		book := m.TopBook{
 			Topk:      page*PageSize + i,
 			ChName:    cName,
 			EnName:    eName,
